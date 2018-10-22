@@ -9,6 +9,11 @@ import scrapy
 
 
 class CankaoItem(scrapy.Item):
+    '''
+    定义要保存的字段
+    设置数据存储模板，用于结构化数据
+    '''
     # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+    url = scrapy.Field()
+    img = scrapy.Field()
+    content = scrapy.Field()
