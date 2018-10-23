@@ -15,8 +15,14 @@ class CankaoSpiderMiddleware(object):
 
     @classmethod
     def from_crawler(cls, crawler):
+        '''
+        类方法用来创建中间件
+        :param crawler:
+        :return: 对象
+        '''
         # This method is used by Scrapy to create your spiders.
         s = cls()
+        # 注册事件  signals.spider_opened 信号触发 s.spider_opened 方法
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 
@@ -101,3 +107,65 @@ class CankaoDownloaderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+import random
+class RandomUserAgent(object):
+    '''
+    使用随机 User-Agent的中间件
+    '''
+    def __init__(self, agents):
+        self.agents = agents
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        '''
+        通过这个类方法创建对象
+        :param crawler:
+        :return:
+        '''
+        '''
+        settings.py USER_AGENTS的值示例
+        USER_AGENTS = [
+           'Mozilla/5.1 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36',
+           'Mozilla/5.2 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36',
+           'Mozilla/5.3 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36',
+           ]
+
+        '''
+        # 获取配置文件settings中USER_AGENTS的值
+        return cls(crawler.settings.getlist('USER_AGENTS'))
+
+
+    def process_request(self, request, spider):
+        print('here')
+        '''
+        中间件请求过程中设置request
+        :param request:
+        :param spider:
+        :return:
+        '''
+        # 设置request的的User-Agent头
+        # setdefault 如果已经存在了就不会重新赋值了，所以中间件要靠前才生效
+        request.headers.setdefault("User-Agent", random.choice(self.agents))
+
+
+class RandomProxy(object):
+    '''
+    使用随机代理的中间件
+    '''
+    def __init__(self, iplist):
+        self.iplist = iplist
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler.settings.getlist('IPLIST'))
+
+    def process_request(self, request, spider):
+        '''
+        给代理随机添加上一个代理
+        :param request:
+        :param spider:
+        :return:
+        '''
+        proxy = random.choice(self.iplist)
+        request.meta['proxy'] = proxy

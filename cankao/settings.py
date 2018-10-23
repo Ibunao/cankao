@@ -19,11 +19,19 @@ NEWSPIDER_MODULE = 'cankao.spiders'
 #  客户端 user-agent请求头
 USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
 
+#  客户端 user-agent请求头 随机使用一个
+USER_AGENTS = [
+   'Mozilla/5.1 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36',
+   'Mozilla/5.2 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36',
+   'Mozilla/5.3 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36',
+   ]
+
 # Obey robots.txt rules
 # 是否遵守robot协议
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
+# 并发请求数
 #CONCURRENT_REQUESTS = 32
 
 # Configure a delay for requests for the same website (default: 0)
@@ -54,9 +62,10 @@ ROBOTSTXT_OBEY = False
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
-#    'cankao.middlewares.CankaoDownloaderMiddleware': 543,
-#}
+# 下载中间件
+DOWNLOADER_MIDDLEWARES = {
+   'cankao.middlewares.RandomUserAgent': 100,
+}
 
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
@@ -69,7 +78,9 @@ ROBOTSTXT_OBEY = False
 # 激活pipline，从低到高开始执行
 ITEM_PIPELINES = {
    # 'cankao.pipelines.CankaoPipeline': 300,
-   'cankao.pipelines.CankaoMongoPipeline': 500,
+   # 'cankao.pipelines.CankaoMongoPipeline': 500,
+   # 'cankao.pipelines.CankaoFilesPipeline': 600,
+   # 'cankao.pipelines.CankaoImagesPipeline': 700,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -95,5 +106,30 @@ ITEM_PIPELINES = {
 
 # mongo的配置信息
 MONGO_URI = '118.25.38.240'
+MONGO_PORT = 27017
 MONGO_DATABASE = 'fecshop_test'
 
+'''
+FilesPipeline 配置
+'''
+# 设置文件存放位置
+FILES_STORE = './download/files'
+# 设置文件过期时间30天
+FILES_EXPIRES = 30
+
+'''
+ImagesPipeline 配置
+'''
+# 设置图片路径
+IMAGES_STORE = './download/images'
+# 制作缩略图
+IMAGES_THUMBS = {
+   'small': (50, 50),
+   'big': (270, 270)
+}
+# 设置图片过期时间30天
+IMAGES_EXPIRES = 30
+# 过滤下载图片的大小
+# 过滤条件：最小图片尺寸
+# IMAGES_MIN_HEIGH = 10
+# IMAGES_MIN_WIDTH = 10
